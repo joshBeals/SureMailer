@@ -1,39 +1,40 @@
 import express from "express";
 import dotenv from "dotenv";
+import bodyParser from "body-parser";
+import cors from "cors";
+import session from "express-session";
 import passport from "passport";
-import { Strategy as GoogleStrategy } from "passport-google-oauth2";
+
+import authRoutes from "./routes/auth.js";
+import isLoggedIn from "./middlewares/isLoggedIn.js";
 
 dotenv.config();
 const app = express();
 
-// Configure OAuth provider credentials
-const oauthProviderConfig = {
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL,
-    passReqToCallback: true,
-};
-
-passport.use(
-    new GoogleStrategy(oauthProviderConfig, function (
-        request,
-        accessToken,
-        refreshToken,
-        profile,
-        done
-    ) {
-        User.findOrCreate({ googleId: profile.id }, function (err, user) {
-            return done(err, user);
-        });
-    })
-);
+app.use(session({ secret: 'cats' }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+app.use(cors());
 
 app.get("/", (req, res) => {
     res.send('<a href="/auth/google">Authenticate with Google</a>');
 });
 
-app.get("/protected", (req, res) => {
+app.get(
+    "/google/callback",
+    passport.authenticate("google", {
+        successRedirect: "/protected",
+        failureRedirect: "/auth/failure",
+    })
+);
+
+app.get("/protected", isLoggedIn, (req, res) => {
     res.send("Hello");
 });
+
+/* ROUTES */
+app.use("/auth", authRoutes);
 
 app.listen(5000, () => console.log("Listening on: 5000"));
