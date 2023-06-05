@@ -24,7 +24,7 @@ passport.use(
         // User.findOrCreate({ googleId: profile.id }, function (err, user) {
         //     return done(err, user);
         // });
-        return done(err, profile);
+        return done(null, profile);
     })
 );
 
@@ -43,20 +43,18 @@ router.get(
     passport.authenticate("google", { scope: ["email", "profile"] })
 );
 
-router.get(
-    "/failure",
-    (req, res) => {
-        res.send('Something went wrong');
-    }
-);
+router.get("/failure", (req, res) => {
+    res.send("Something went wrong");
+});
 
-router.get(
-    "/logout",
-    (req, res) => {
-        req.logout();
+router.get("/logout", (req, res, next) => {
+    req.logout(function (err) {
+        if (err) {
+            return next(err);
+        }
         req.session.destroy();
-        res.send('Goodbye!');
-    }
-);
+        res.send("Goodbye!");
+    });
+});
 
 export default router;
