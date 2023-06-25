@@ -7,6 +7,7 @@ import passport from "passport";
 import mongoose from "mongoose";
 
 import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/user.js";
 import isLoggedIn from "./middlewares/isLoggedIn.js";
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.get("/protected", isLoggedIn, (req, res) => {
 
 /* ROUTES */
 app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;

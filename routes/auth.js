@@ -2,9 +2,10 @@ import express from "express";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth2";
 import dotenv from "dotenv";
-import { login, register } from "../controllers/auth";
-dotenv.config();
+import { login, register } from "../controllers/auth.js";
+import User from "../models/User.js";
 
+dotenv.config();
 
 // Configure OAuth provider credentials
 const oauthProviderConfig = {
@@ -22,10 +23,18 @@ passport.use(
         profile,
         done
     ) {
-        // User.findOrCreate({ googleId: profile.id }, function (err, user) {
-        //     return done(err, user);
-        // });
-        return done(null, profile);
+        User.findOrCreate(
+            { googleId: profile.id },
+            {
+                oauth: true,
+                firstname: profile.given_name,
+                lastname: profile.family_name,
+                email: profile.email,
+            },
+            function (err, user) {
+                return done(err, user);
+            }
+        );
     })
 );
 

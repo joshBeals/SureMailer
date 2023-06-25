@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import findOrCreate from "mongoose-findorcreate";
 
 const UserSchema = new mongoose.Schema(
     {
@@ -14,6 +15,14 @@ const UserSchema = new mongoose.Schema(
             min: 2,
             max: 50,
         },
+        oauth: {
+            type: Boolean,
+            default: false,
+        },
+        googleId: {
+            type: String,
+            unique: true,
+        },
         email: {
             type: String,
             required: true,
@@ -22,11 +31,16 @@ const UserSchema = new mongoose.Schema(
         },
         password: {
             type: String,
-            required: true,
+            required: function() {
+                return !this.oauth;
+            },
             min: 50,
-        }
-    }, { timestamps: true }
+        },
+    },
+    { timestamps: true }
 );
+
+UserSchema.plugin(findOrCreate);
 
 const User = mongoose.model("User", UserSchema);
 export default User;
