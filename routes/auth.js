@@ -2,6 +2,7 @@ import express from "express";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth2";
 import dotenv from "dotenv";
+import { login, register } from "../controllers/auth";
 dotenv.config();
 
 
@@ -37,6 +38,10 @@ passport.deserializeUser(function (user, done) {
 });
 
 const router = express.Router();
+
+router.post("/register", register);
+
+router.post("/login", login);
 
 router.get(
     "/google",
