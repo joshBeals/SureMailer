@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import session from "express-session";
 import passport from "passport";
+import mongoose from "mongoose";
 
 import authRoutes from "./routes/auth.js";
 import isLoggedIn from "./middlewares/isLoggedIn.js";
@@ -31,10 +32,17 @@ app.get(
 );
 
 app.get("/protected", isLoggedIn, (req, res) => {
-    res.send("Hello");
+    res.send(req.user);
 });
 
 /* ROUTES */
 app.use("/auth", authRoutes);
 
-app.listen(5000, () => console.log("Listening on: 5000"));
+/* MONGOOSE SETUP */
+const PORT = process.env.PORT || 6001;
+mongoose.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => {
+    app.listen(PORT, () => console.log(`Listening on port: ${PORT}`));
+}).catch((error) => console.log(`${error} did not connect`));
