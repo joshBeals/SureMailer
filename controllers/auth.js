@@ -6,6 +6,12 @@ import User from "../models/User.js";
 export const register = async (req, res) => {
     try {
         const { firstname, lastname, email, password } = req.body;
+        
+        const user = await User.findOne({ email: email });
+        if (user)
+            return res
+                .status(400)
+                .json({ success: false, error: "Email is already taken" });
 
         const salt = await bcrypt.genSalt();
         const passwordHash = await bcrypt.hash(password, salt);
@@ -30,6 +36,8 @@ export const login = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email: email });
         if (!user) return res.status(400).json({ success: false, error: "User does not exist" });
+
+        if (!user.password) return res.status(400).json({ success: false, error: "User does not exist" });
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ success: false, error: "Invalid Credentials" });

@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema(
         },
         googleId: {
             type: String,
-            unique: true,
+            default: null,
         },
         email: {
             type: String,
@@ -31,10 +31,11 @@ const UserSchema = new mongoose.Schema(
         },
         password: {
             type: String,
-            required: function() {
+            required: function () {
                 return !this.oauth;
             },
             min: 50,
+            default: null,
         },
     },
     { timestamps: true }
