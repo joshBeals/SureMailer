@@ -8,7 +8,6 @@ import mongoose from "mongoose";
 
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/user.js";
-import isLoggedIn from "./middlewares/isLoggedIn.js";
 
 dotenv.config();
 const app = express();
@@ -27,14 +26,10 @@ app.get("/", (req, res) => {
 app.get(
     "/google/callback",
     passport.authenticate("google", {
-        successRedirect: "/protected",
-        failureRedirect: "/auth/failure",
+        successRedirect: `${process.env.FRONTEND_URL}/auth/verifyGoogle`,
+        failureRedirect: `${process.env.FRONTEND_URL}/auth/verifyGoogle`,
     })
 );
-
-app.get("/protected", isLoggedIn, (req, res) => {
-    res.send(req.user);
-});
 
 /* ROUTES */
 app.use("/auth", authRoutes);
