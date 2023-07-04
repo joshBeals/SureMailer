@@ -5,14 +5,16 @@ import cors from "cors";
 import session from "express-session";
 import passport from "passport";
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/user.js";
+import isLoggedIn from "./middlewares/isLoggedIn.js";
 
 dotenv.config();
 const app = express();
 
-app.use(session({ secret: 'cats' }));
+app.use(session({ secret: "cats" }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
@@ -26,10 +28,15 @@ app.get("/", (req, res) => {
 app.get(
     "/google/callback",
     passport.authenticate("google", {
-        successRedirect: `${process.env.FRONTEND_URL}/auth/verifyGoogle`,
-        failureRedirect: `${process.env.FRONTEND_URL}/auth/verifyGoogle`,
+        successRedirect: "/protected",
+        failureRedirect: `${process.env.FRONTEND_URL}/auth/failure`,
     })
 );
+
+app.get("/protected", isLoggedIn, (req, res) => {
+    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET);
+    res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${token}`);
+});
 
 /* ROUTES */
 app.use("/auth", authRoutes);

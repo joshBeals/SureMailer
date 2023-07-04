@@ -4,5 +4,5 @@ export default (req, res, next) => {
         ? next()
         : res
               .status(401)
-              .json({ success: false, error: "Authentication Failed!" });
+              .json({ success: false, error: "Authentication Failedss!" });
 }

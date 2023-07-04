@@ -2,7 +2,6 @@ import express from "express";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth2";
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
 import { login, register } from "../controllers/auth.js";
 import User from "../models/User.js";
 import isLoggedIn from "../middlewares/isLoggedIn.js";
@@ -58,13 +57,6 @@ router.get(
     "/google",
     passport.authenticate("google", { scope: ["email", "profile"] })
 );
-
-router.get("/success", isLoggedIn, (req, res) => {
-    const user = req?.user;
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    delete user.password;
-    res.status(200).json({ success: true, token, user });
-});
 
 router.get("/failure", (req, res) => {
     res.status(500).json({ success: false, error: "Authentication Failed!" });
